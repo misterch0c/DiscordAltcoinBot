@@ -138,6 +138,21 @@ bot.on('message', function(user, userID, channelID, message, event){
     tickers = command.slice(1,command.length);
     marketCap(channelID,tickers);
   }
+  if (command[0]=="lend"){
+      currency = command[1].toUpperCase();
+      poloPublic.returnLoanOrders(currency,(err, response) => {
+        if(err){
+          console.log("error loan method")
+          console.log(eth)
+        } else{
+          console.log(response)
+          bot.sendMessage({
+            to: channelID,
+            message: "Latest lending rate:" + (response['offers'][0].rate * 100).toFixed(4) + "%"
+          });
+        }
+      });
+  }
   if(command[0] == "convert" && command.length == 3){
     if(isNaN(command[1])){
       currency = command[1];
