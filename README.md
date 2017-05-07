@@ -13,6 +13,7 @@ These are the commands this bot supports:
 | Volume        | Coin Ticker   | Gets the 24 hour volume of the currencies provided                             |
 | Cap/Marketcap | Coin Ticker   | Gets the current marketcap and rank of the cryptocurrency                      |
 | Convert       | Coin Ticker   | Converts the currency amount to dollars eg: convert 100 xmr / convert xmr 100  |
+| lend		|               | Output the latest lending rates for Poloniex coins				 |
 | Pepe          |               | Uploads pepe to chat for your enjoyment                                        |
 | Pepe          | Add           | Adds image to pepe repository. eg pepe add http://site.com/lol.jpg             |
 | Pepe          | List          | Lists all pepes in pepe repository                                             |
