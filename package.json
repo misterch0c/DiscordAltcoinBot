@@ -1,12 +1,12 @@
 {
-  "name": "cryptobot",
-  "version": "1.0.0",
+  "name": "cryptobot2.0",
+  "version": "2.0.0",
   "description": "Bot for getting live cryptocurrency market data",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "meme-lord",
+  "author": "meme-lord and Dave",
   "license": "ISC",
   "dependencies": {
     "discord.io": "^2.1.3",
