@@ -5,11 +5,21 @@ var request = require('request');
 var fs = require('fs');
 var util = require('util');
 var async = require("async");
-    var data = require("./config.json");
+var bittrex = require("node.bittrex.api");
+var data = require("./config.json");
 
 trollboxChannel = data.trollboxchannel;
 botToken = data.botToken;
 // Discord channel id for the trollbox channel probably shouldnt be hardcoded
+bittrex.options({
+    'apikey': "5e50b5edeea644879a6aff1bfde0d2bf",
+    'apisecret': "d2266f9f37a549d68c0ef3b1b22afb02",
+    'stream': false,
+    'verbose': true,
+    'cleartext': true,
+    'baseUrl': 'https://bittrex.com/api/v1.1'
+});
+
 
 var poloPublic = new polo.PublicWrapper();
 var poloPush = new polo.PushWrapper();
@@ -125,7 +135,11 @@ bot.on('message', function(user, userID, channelID, message, event) {
     }
     if (command[0] == "price") {
         tickers = command.slice(1, command.length);
-        poloPrice(channelID, tickers);
+        console.log("pricecmd   ")
+        console.log(tickers)
+        getAllPrices(channelID,tickers)
+            //poloPrice(channelID, tickers);
+            //bittrexPrice(channelID, tickers);
     }
     if (command[0] == "volume") {
         tickers = command.slice(1, command.length);
@@ -166,6 +180,59 @@ bot.on('message', function(user, userID, channelID, message, event) {
     }
 });
 
+
+function getAllPrices(channelID,tickers) {
+    console.log("getalltick")
+    console.log(tickers)
+    var mess = []
+    console.log('getAllPrices')
+    async.series([
+            function(cb) {
+                console.log("dddd")
+                poloPrice(tickers, function(err, rez) {
+                    console.log('polo')
+                    console.log(err)
+                    console.log(rez)
+                    if (rez) {
+
+                        console.log(rez)
+                        mess.push(rez)
+                    }
+                    return cb();
+                });
+            },
+            function(cb) {
+                console.log("eee")
+
+                bittrexPrice(tickers, function(err, rez) {
+                    console.log("bitt")
+                    if (rez) {
+                        console.log(rez)
+                        mess.push(rez)
+                    }
+                    return cb();
+                });
+            }
+        ],
+
+        function(err) {
+            console.log("end results")
+            console.log(mess)
+            message= tickers[0].toUpperCase() 
+            bot.sendMessage({
+                to: channelID,
+                embed: {
+                    color: 16776960,
+                    fields: [{
+                        name: tickers[0].toUpperCase()+" prices",
+                        value: mess.join('')
+                    }],
+                }
+            });
+
+        });
+}
+
 function lendRate(currency, cb) {
     console.log(currency)
     poloPublic.returnLoanOrders(currency, (err, response) => {
@@ -176,38 +243,37 @@ function lendRate(currency, cb) {
         } else {
             console.log("ok")
 
-            var rez = ("**"+currency+"**" + " " + (response['offers'][0].rate * 100).toFixed(4) + " %\n")
+            var rez = ("**" + currency + "**" + " " + (response['offers'][0].rate * 100).toFixed(4) + " %\n")
             console.log(rez)
             return cb(null, rez)
         }
     });
 }
 
-
 function lendRateAll(channelID) {
     var mess = [];
-    var currencies = ['BTC', 'ETH', 'BTS','XMR','XRP','STR','FCT','DASH','LTC','DOGE','MAID'];
+    var currencies = ['BTC', 'ETH', 'BTS', 'XMR', 'XRP', 'STR', 'FCT', 'DASH', 'LTC', 'DOGE', 'MAID'];
 
     async.each(currencies, function(currency, cb) {
         lendRate(currency, function(err, rez) {
-            if (rez){
-              console.log(rez)
-              mess.push(rez)
+            if (rez) {
+                console.log(rez)
+                mess.push(rez)
             }
             return cb();
         })
 
     }, function() {
-      console.log(mess);
+        console.log(mess);
         if (mess.length == 11) {
             bot.sendMessage({
                 to: channelID,
                 //message:"**Lending fees Poloniex**"+"```"+mess.join('')+"```"
                 embed: {
                     color: 16776960,
-                    fields:[{
-                        name:"Lending rates Poloniex",
-                        value:mess.join('')
+                    fields: [{
+                        name: "Lending rates Poloniex",
+                        value: mess.join('')
                     }],
                 }
             });
@@ -307,7 +373,12 @@ function poloVolume(channelID, tickers) {
     });
 }
 
-function poloPrice(channelID, tickers) {
+
+
+function poloPrice(tickers, cb) {
+    console.log("tick")
+    console.log(tickers)
+    var message = '';
     var newtickers = [];
     for (var ticker in tickers) {
         if (tickers[ticker] == 'btc') {
@@ -320,27 +391,59 @@ function poloPrice(channelID, tickers) {
     poloPublic.returnTicker((err, response) => {
         if (err) {
             console.log("An error occurred: " + err.msg);
-        } else {
-            //return response;
-            //console.log(response);
-            console.log(tickers);
-            message = '';
-            btc_value = response['USDT_BTC'].last;
-            for (var key in response) {
-                if (tickers.indexOf(key) > -1) {
-                    ticker_btc_value = response[key].last;
-                    if (key == 'USDT_BTC') {
-                        ticker_btc_value = 1;
-                    }
-                    message += key.replace(/^[A-Za-z]*_/, '') + '\t' + ticker_btc_value + ' (' + (response[key].percentChange * 100).toFixed(2) + '%)\t$' + (ticker_btc_value * btc_value).toFixed(8) + '\n';
-                }
-            }
-            console.log(message);
-            bot.sendMessage({
-                to: channelID,
-                message: message
-            });
+            return cb(err)
         }
+        //return response;
+        //console.log(response);
+        console.log(tickers);
+
+        btc_value = response['USDT_BTC'].last;
+        for (var key in response) {
+            if (tickers.indexOf(key) > -1) {
+                ticker_btc_value = response[key].last;
+                if (key == 'USDT_BTC') {
+                    ticker_btc_value = 1;
+                }
+                //message += key.replace(/^[A-Za-z]*_/, '') + '\t' + "(Poloniex): " + '$' + (ticker_btc_value * btc_value).toFixed(2) + ' (' + (response[key].percentChange * 100).toFixed(2) + '%)\t' + '\n';
+                message += "Poloniex:  " + '$' + (ticker_btc_value * btc_value).toFixed(2) + ' (' + (response[key].percentChange * 100).toFixed(2) + '%)\t' + '\n';
+
+            }
+        }
+
+        // console.log(message);
+        // bot.sendMessage({
+        //     to: channelID,
+        //     message: message
+        // });
+        console.log(message)
+        return cb(null, message)
+    });
+}
+
+function bittrexPrice(tickers,cb) {
+    console.log(tickers)
+    var newtickers = [];
+    for (var ticker in tickers) {
+        if (tickers[ticker] == 'btc') {
+            newtickers.push("USDT-BTC");
+        } else {
+            newtickers.push("BTC-" + tickers[ticker].toUpperCase());
+        }
+    }
+    tickers = newtickers;
+    bittrex.getticker({
+        market: tickers
+    }, function(data) {
+        console.log('---')
+        console.log(typeof(data))
+        var last=JSON.parse(data).result.Last
+        console.log(last)
+        return cb(null,"Bittrex: "+"$"+last.toFixed(2))
+        // bot.sendMessage({
+        //     to:channelID,
+        //     message: "bittrex: " +data["Last"]+"$"
+        // })
+        
     });
 }
 
