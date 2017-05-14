@@ -1,4 +1,4 @@
-// https://discordapp.com/oauth2/authorize?&client_id=305469838212464641&scope=bot&permissions=0
+//https://discordapp.com/oauth2/authorize?&client_id=305469838212464641&scope=bot&permissions=0
 var Discord = require('discord.io');
 var polo = require("poloniex-unofficial");
 var request = require('request');
@@ -7,6 +7,10 @@ var util = require('util');
 var async = require("async");
 var bittrex = require("node.bittrex.api");
 var data = require("./config.json");
+var etherscan = require('etherscan-api').init(data.etherscan_api);
+var etherWallets = require("./etherWallets.json");
+var _=require('underscore');
+
 
 trollboxChannel = data.trollboxchannel;
 botToken = data.botToken;
@@ -19,7 +23,6 @@ bittrex.options({
     'cleartext': true,
     'baseUrl': 'https://bittrex.com/api/v1.1'
 });
-
 
 var poloPublic = new polo.PublicWrapper();
 var poloPush = new polo.PushWrapper();
@@ -142,6 +145,12 @@ bot.on('message', function(user, userID, channelID, message, event) {
             //poloPrice(channelID, tickers);
             //bittrexPrice(channelID, tickers);
     }
+    if (command[0] == "wallet"){
+
+        tickers = command.slice(1, command.length);
+        getWallet(channelID,tickers)
+
+    }
     if (command[0] == "volume") {
         tickers = command.slice(1, command.length);
         poloVolume(channelID, tickers);
@@ -181,6 +190,20 @@ bot.on('message', function(user, userID, channelID, message, event) {
     }
 });
 
+function getWallet(channelID, tickers){
+console.log("getWallet")
+found=_.find(etherWallets,function(wallet){return wallet.coin==tickers[0].toUpperCase()})
+console.log(found)
+var balance = etherscan.account.balance(found.address);
+    balance.then(function(balanceData){
+      console.log(balanceData);
+      bot.sendMessage({
+        to:channelID,
+        message: balanceData.result + " ether"
+      })
+    });
+
+}
 
 function getAllPrices(channelID,tickers) {
     console.log("getalltick")

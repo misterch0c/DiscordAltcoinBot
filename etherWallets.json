@@ -1,0 +1,22 @@
+[
+    {
+        "coin": "GNT",
+        "full_name": "Golem",
+        "address": "0x7da82c7ab4771ff031b66538d2fb9b0b047f6cf9"
+    }, {
+        "coin": "VSL",
+        "full_name": "vSlice",
+        "address": "0x8bccc9ba2e5706e24a36dda02ca2a846e39a7bbf"
+    }, {
+        "coin": "DGD",
+        "full_name": "DigixDAO",
+        "address": "0x8bccc9ba2e5706e24a36dda02ca2a846e39a7bbf"
+    }, {
+        "coin": "SNGLS",
+        "full_name": "SingularDTV",
+        "address": "0xc78310231aa53bd3d0fea2f8c705c67730929d8f"
+    }, {
+        "coin": "vSlice",
+        "address": "0x8bccc9ba2e5706e24a36dda02ca2a846e39a7bbf"
+    }
+]
