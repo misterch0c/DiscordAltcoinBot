@@ -12,8 +12,8 @@ trollboxChannel = data.trollboxchannel;
 botToken = data.botToken;
 // Discord channel id for the trollbox channel probably shouldnt be hardcoded
 bittrex.options({
-    'apikey': "5e50b5edeea644879a6aff1bfde0d2bf",
-    'apisecret': "d2266f9f37a549d68c0ef3b1b22afb02",
+    'apikey': data.bittrex_api,
+    'apisecret': data.bittrex_secret,
     'stream': false,
     'verbose': true,
     'cleartext': true,
@@ -54,6 +54,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
         lendRateAll(channelID)
     }
     if (command[0] == "ping" && command.length == 1) {
+        console.log("pong")
         bot.sendMessage({
             to: channelID,
             message: "pong"

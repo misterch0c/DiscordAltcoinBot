@@ -1,6 +1,8 @@
 {
-"polotrolls" : ["ed65l","cryptocube","manakill","Pilot"],
+"polotrolls" : ["","","",""],
 "polofollow" : [],
 "trollboxChannel" : "305198230272999434",
-"botToken": "MzA1NDY5ODM4MjEyNDY0NjQx.C92RRw.qxQ_rp45J0bUSwrZGCFWhiteCQg"
+"botToken": "MzA1NDY5ODM4MjEyNDY0NjQx.C92RRw.qxQ_rp45J0bUSwrZGCFWhiteCQg",
+"bittrex_api" : "5e50b5edeea644879a6aff1bfde0d2bf",
+"bittrex_secret" : "d2266f9f37a549d68c0ef3b1b22afb02"
 }
